@@ -1,3 +1,4 @@
+
 from typing import TypedDict
 
 from langgraph.graph import (
@@ -20,13 +21,9 @@ def reponse_node(state):
     f"Votre question est : {question}"
     )
     return state
-
-
 def decision_node(state):
-    question = state[
-    "question"
-    ].lower()
-    if "bonjour" in question:
+    question = state["question"]
+    if "bonjour" in question.lower():
         state["type_question"] = (
     "salutation"
     )
@@ -36,13 +33,8 @@ def decision_node(state):
     or "*" in question
     or "/" in question
     ):
-
         state["type_question"] = (
     "calcul"
-    )
-    elif "lis" in question:
-        state["type_question"] = (
-    "lecture"
     )
     else:
         state["type_question"] = (
@@ -51,8 +43,12 @@ def decision_node(state):
     return state
 
 def calculatrice_node(state):
-    state["reponse"] = (
-    "Résultat du calcul"
+    question = state["question"]
+    resultat = calculatrice(
+    question
+    )
+    state["reponse"] = str(
+    resultat
     )
     return state
 
@@ -61,7 +57,17 @@ def documentation_node(state):
     "Réponse documentaire"
     )
     return state
-
+def calculatrice(expression):
+    return eval(expression)
+def calculatrice_node(state):
+    question = state["question"]
+    resultat = calculatrice(
+    question
+    )
+    state["reponse"] = str(
+    resultat
+    )
+    return state
 
 def greeting_node(state):
     state["reponse"] = (
@@ -83,12 +89,7 @@ def route_question(state):
 "type_question"
 ]
 
-def txt_reader_node(state):
-    contenu = txt_reader(
-    "documents/rh.txt"
-    )
-    state["reponse"] = contenu
-    return state
+
 
 workflow = StateGraph(
     AgentState
@@ -122,28 +123,19 @@ workflow.add_node(
 documentation_node
 )
 
-
-
-workflow.add_node(
-"txt_reader",
-txt_reader_node
-)
-
-
-
-
 workflow.add_conditional_edges(
 "decision",
 route_question,
 {
+"salutation":
+"salutation",
 "calcul":
 "calculatrice",
-"lecture":
-"txt_reader",
 "documentation":
 "documentation"
 }
 )
+
 
 workflow.set_entry_point(
     "analyse"
@@ -170,20 +162,17 @@ workflow.add_edge(
 END
 )
 
-workflow.add_edge(
-"txt_reader",
-END
-)
 
 agent = workflow.compile()
 
 resultat = agent.invoke(
 {
 "question":
-"Lis le fichier RH ?"
+"5*5 "
 }
 )
+
 print(
-txt_reader("documents/rh.txt")
+resultat["reponse"]
 )
-print(resultat)
+
