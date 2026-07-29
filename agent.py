@@ -1,5 +1,5 @@
 from typing import TypedDict
-
+import requests
 from pypdf import PdfReader
 from docx import Document
 from langgraph.graph import StateGraph, END
@@ -47,7 +47,13 @@ def calculatrice_node(state):
 
 
 def documentation_node(state):
-    state["reponse"] = "Réponse documentaire"
+    question = state["question"]
+    prompt = f"""
+    Réponds à cette question :
+    {question}
+    """
+    reponse = llm_local(prompt)
+    state["reponse"] = reponse
     return state
 
 
@@ -58,13 +64,35 @@ def greeting_node(state):
 
 def pdf_reader_node(state):
     contenu = pdf_reader("documents/formation.pdf")
-    state["reponse"] = contenu
+    question = state["question"]
+    prompt = f"""
+    Contexte :
+    {contenu}
+    Question :
+    {question}
+    Réponse :
+    """
+    state["reponse"] = llm_local(prompt)
     return state
+
+
+# def docx_reader_node(state):
+#     contenu = docx_reader("documents/procedure.docx")
+#     state["reponse"] = contenu
+#     return state
 
 
 def docx_reader_node(state):
     contenu = docx_reader("documents/procedure.docx")
-    state["reponse"] = contenu
+    question = state["question"]
+    prompt = f"""
+    Contexte :
+    {contenu}
+    Question :
+    {question}
+    Réponse :
+    """
+    state["reponse"] = llm_local(prompt)
     return state
 
 
@@ -80,7 +108,15 @@ def route_question(state):
 
 def txt_reader_node(state):
     contenu = txt_reader("documents/rh.txt")
-    state["reponse"] = contenu
+    question = state["question"]
+    prompt = f"""
+    Contexte :
+    {contenu}
+    Question :
+    {question}
+    Réponse :
+    """
+    state["reponse"] = llm_local(prompt)
     return state
 
 
@@ -98,6 +134,13 @@ def docx_reader(chemin_fichier):
     for paragraphe in doc.paragraphs:
         contenu += paragraphe.text + "\n"
     return contenu
+
+
+def llm_local(prompt):
+    url = "http://localhost:11434/api/generate"
+    data = {"model": "phi3", "prompt": prompt, "stream": False}
+    response = requests.post(url, json=data)
+    return response.json()["response"]
 
 
 workflow = StateGraph(AgentState)
@@ -149,5 +192,28 @@ agent = workflow.compile()
 
 resultat = agent.invoke({"question": "Lis formation.pdf"})
 resultat2 = agent.invoke({"question": "Lis procedure.docx"})
-print(resultat)
-print(resultat2)
+# print(resultat)
+# print(resultat2)
+# # print(llm_local("Hello"))
+# resultat = agent.invoke({"question": "What is an Agent IA ?"})
+# print(resultat["reponse"])
+contenu = txt_reader("documents/rh.txt")
+prompt = f"""
+Contexte :
+{contenu}
+Question :
+Quels sont les congés ?
+Réponse :
+"""
+resultat = agent.invoke(
+{"question": "Lis formation.pdf"}
+)
+resultat = agent.invoke(
+{"question": "Quels sujets sont étudiés ?"}
+)
+resultat = agent.invoke(
+{"question": "Lis procedure.docx"}
+)
+resultat = agent.invoke(
+{"question": "Que dit la procédure RH ?"}
+)
