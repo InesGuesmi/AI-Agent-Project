@@ -1,3 +1,5 @@
+# IMPORTS
+
 from typing import TypedDict
 import requests
 from pypdf import PdfReader
@@ -287,16 +289,10 @@ workflow.add_conditional_edges(
 )
 
 workflow.set_entry_point("analyse")
-
 workflow.add_edge("analyse", "decision")
-
 workflow.add_edge("documentation", END)
-
 workflow.add_edge("calculatrice", END)
-
-
 workflow.add_edge("salutation", END)
-
 workflow.add_edge("txt_reader", END)
 workflow.add_edge("pdf_reader", END)
 workflow.add_edge("docx_reader", END)
@@ -337,6 +333,7 @@ resultat = agent.invoke({"question": "Que dit la procédure RH ?"})
 # )
 if __name__ == "__main__":
     memoire = []
+    
     questions = [
         "Quels sont les congés ?",
         "Lis formation.pdf",
