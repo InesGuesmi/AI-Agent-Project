@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from agent import agent
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -15,7 +17,7 @@ def bonjour():
 
 @app.get("/status")
 def status():
-    return {"status": "OK"}
+    return {"etat": "OK"}
 
 
 @app.get("/info")
@@ -26,3 +28,16 @@ def info():
 @app.get("/utilisateur/{nom}")
 def utilisateur(nom):
     return {"message": f"Bonjour {nom}"}
+
+
+class QuestionRequest(BaseModel):
+    question: str
+
+
+@app.post("/question")
+def poser_question(request: QuestionRequest):
+    try:
+        resultat = agent.invoke({"question": request.question})
+        return {"reponse": resultat["reponse"]}
+    except Exception as e:
+        return {"erreur": str(e)}

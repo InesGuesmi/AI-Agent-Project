@@ -335,25 +335,27 @@ resultat = agent.invoke({"question": "Que dit la procédure RH ?"})
 # fin - debut,
 # "secondes"
 # )
-questions = [
-    "Quels sont les congés ?",
-    "Lis formation.pdf",
-    "50+20",
-    "Lis procedure.docx",
-]
+if __name__ == "__main__":
+    memoire = []
+    questions = [
+        "Quels sont les congés ?",
+        "Lis formation.pdf",
+        "50+20",
+        "Lis procedure.docx",
+    ]
 
-for question in questions:
-    if question == "":
-        print("Veuillez saisir une question.")
-        continue
-    historique = "\n".join(memoire)
-    debut = time.time()
-    resultat = agent.invoke({"question": question})
-    fin = time.time()
-    reponse = resultat["reponse"]
-    memoire.append(f"Utilisateur : {question}")
-    memoire.append(f"Assistant : {reponse}")
-    print(reponse)
-    print("[LOG] Réponse générée")
-    print("Temps :", fin - debut, "secondes")
-    print("-------------")
+    for question in questions:
+        if question == "":
+            print("Veuillez saisir une question.")
+            continue
+        historique = "\n".join(memoire)
+        debut = time.time()
+        resultat = agent.invoke({"question": question})
+        fin = time.time()
+        reponse = resultat["reponse"]
+        memoire.append(f"Utilisateur : {question}")
+        memoire.append(f"Assistant : {reponse}")
+        print(reponse)
+        print("[LOG] Réponse générée")
+        print("Temps :", fin - debut, "secondes")
+        print("-------------")
