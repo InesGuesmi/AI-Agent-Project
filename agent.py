@@ -14,11 +14,6 @@ class AgentState(TypedDict):
     type_question: str
 
 
-# def analyse_node(state):
-#     print("Analyse de la question...")
-#     return state
-
-
 def analyse_node(state):
     question = state["question"]
     print("[LOG] Question reçue :", question)
@@ -58,21 +53,6 @@ def calculatrice_node(state):
     return state
 
 
-# def documentation_node(state):
-#     question = state["question"]
-#     prompt = f"""
-#     Réponds à cette question :
-#     {question}
-#     """
-#     reponse = llm_local(prompt)
-#     state["reponse"] = reponse
-#     return state
-
-# memoire = []
-# memoire.append(f"Utilisateur : {question}")
-# memoire.append(f"Assistant : {reponse}")
-# historique = "\n".join(memoire)
-
 memoire = []
 
 historique = "\n".join(memoire)
@@ -97,20 +77,6 @@ def greeting_node(state):
     return state
 
 
-# def pdf_reader_node(state):
-#     contenu = pdf_reader("documents/formation.pdf")
-#     question = state["question"]
-#     prompt = f"""
-#     Contexte :
-#     {contenu}
-#     Question :
-#     {question}
-#     Réponse :
-#     """
-#     state["reponse"] = llm_local(prompt)
-#     return state
-
-
 def pdf_reader_node(state):
     contenu = pdf_reader("documents/formation.pdf")
     question = state["question"]
@@ -127,28 +93,6 @@ def pdf_reader_node(state):
     return state
 
 
-# def docx_reader_node(state):
-#     contenu = docx_reader("documents/procedure.docx")
-#     state["reponse"] = contenu
-#     return state
-
-
-def docx_reader_node(state):
-    contenu = docx_reader("documents/procedure.docx")
-    question = state["question"]
-    prompt = f"""
-    Historique :
-    {historique}
-    Contexte :
-    {contenu}
-    Question :
-    {question}
-    Réponse :
-    """
-    state["reponse"] = llm_local(prompt)
-    return state
-
-
 def docx_reader_node(state):
     contenu = docx_reader("documents/procedure.docx")
     question = state["question"]
@@ -163,12 +107,6 @@ def docx_reader_node(state):
     """
     state["reponse"] = llm_local(prompt)
     return state
-
-
-# def txt_reader(chemin_fichier):
-#     with open(chemin_fichier, "r", encoding="utf-8") as fichier:
-#         contenu = fichier.read()
-#     return contenu
 
 
 def txt_reader(chemin_fichier):
@@ -181,20 +119,6 @@ def txt_reader(chemin_fichier):
 
 def route_question(state):
     return state["type_question"]
-
-
-# def txt_reader_node(state):
-#     contenu = txt_reader("documents/rh.txt")
-#     question = state["question"]
-#     prompt = f"""
-#     Contexte :
-#     {contenu}
-#     Question :
-#     {question}
-#     Réponse :
-#     """
-#     state["reponse"] = llm_local(prompt)
-#     return state
 
 
 def txt_reader_node(state):
@@ -213,14 +137,6 @@ def txt_reader_node(state):
     return state
 
 
-# def pdf_reader(chemin_fichier):
-#     lecteur = PdfReader(chemin_fichier)
-#     contenu = ""
-#     for page in lecteur.pages:
-#         contenu += page.extract_text()
-#     return contenu
-
-
 def pdf_reader(chemin_fichier):
     try:
         lecteur = PdfReader(chemin_fichier)
@@ -230,14 +146,6 @@ def pdf_reader(chemin_fichier):
         return contenu
     except:
         return "Fichier introuvable."
-
-
-# def docx_reader(chemin_fichier):
-#     doc = Document(chemin_fichier)
-#     contenu = ""
-#     for paragraphe in doc.paragraphs:
-#         contenu += paragraphe.text + "\n"
-#     return contenu
 
 
 def docx_reader(chemin_fichier):
@@ -261,16 +169,11 @@ def llm_local(prompt):
 workflow = StateGraph(AgentState)
 
 workflow.add_node("analyse", analyse_node)
-
 workflow.add_node("reponse", reponse_node)
-
 workflow.add_node("salutation", greeting_node)
-
 workflow.add_node("decision", decision_node)
 workflow.add_node("calculatrice", calculatrice_node)
 workflow.add_node("documentation", documentation_node)
-
-
 workflow.add_node("txt_reader", txt_reader_node)
 workflow.add_node("pdf_reader", pdf_reader_node)
 workflow.add_node("docx_reader", docx_reader_node)
@@ -298,39 +201,7 @@ workflow.add_edge("pdf_reader", END)
 workflow.add_edge("docx_reader", END)
 
 agent = workflow.compile()
-# if question == "":
-#     print("Veuillez saisir une question.")
-resultat = agent.invoke({"question": "Lis formation.pdf"})
-resultat2 = agent.invoke({"question": "Lis procedure.docx"})
-# print(resultat)
-# print(resultat2)
-# # print(llm_local("Hello"))
-# resultat = agent.invoke({"question": "What is an Agent IA ?"})
-# print(resultat["reponse"])
-contenu = txt_reader("documents/rh.txt")
-prompt = f"""
-Contexte :
-{contenu}
-Question :
-Quels sont les congés ?
-Réponse :
-"""
 
-resultat = agent.invoke({"question": "Lis formation.pdf"})
-resultat = agent.invoke({"question": "Quels sujets sont étudiés ?"})
-resultat = agent.invoke({"question": "Lis procedure.docx"})
-resultat = agent.invoke({"question": "Que dit la procédure RH ?"})
-
-# debut = time.time()
-# resultat = agent.invoke(
-# {"question": question}
-# )
-# fin = time.time()
-# print(
-# "Temps :",
-# fin - debut,
-# "secondes"
-# )
 if __name__ == "__main__":
     memoire = []
     
